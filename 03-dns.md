@@ -10,7 +10,7 @@ Samba übernimmt den DNS-Dienst für die Domain. Damit das funktioniert, muss de
 
 Auf Pi OS Bookworm verwaltet NetworkManager die DNS-Konfiguration. Damit der Pi Samba als DNS nutzt, muss `127.0.0.1` als DNS-Server eingetragen werden.
 
-Zuerst die UUID der WLAN-Verbindung herausfinden:
+Zuerst die UUID der aktiven Verbindung herausfinden:
 
 ```bash
 nmcli con show
@@ -19,9 +19,9 @@ nmcli con show
 Dann DNS setzen und automatische DNS-Zuweisung vom Router deaktivieren:
 
 ```bash
-sudo nmcli con mod <UUID-der-WLAN-Verbindung> ipv4.dns "127.0.0.1"
-sudo nmcli con mod <UUID-der-WLAN-Verbindung> ipv4.ignore-auto-dns yes
-sudo nmcli con up <UUID-der-WLAN-Verbindung>
+sudo nmcli con mod <UUID-der-aktiven-Verbindung> ipv4.dns "127.0.0.1"
+sudo nmcli con mod <UUID-der-aktiven-Verbindung> ipv4.ignore-auto-dns yes
+sudo nmcli con up <UUID-der-aktiven-Verbindung>
 ```
 
 > Hinweis: Falls der Verbindungsname ein `!` enthält (z.B. `netplan-wlan0-FRITZ!Box`), schlägt der Befehl mit dem Namen fehl, weil bash das `!` als Sonderzeichen interpretiert. In diesem Fall die UUID aus `nmcli con show` verwenden.

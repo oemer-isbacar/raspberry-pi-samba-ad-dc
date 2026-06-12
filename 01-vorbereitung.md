@@ -2,7 +2,7 @@
 
 ## Was in dieser Phase passiert
 
-Bevor Samba installiert werden kann, muss das System vorbereitet werden. Dazu gehört ein korrekter Hostname, eine statische IP-Adresse auf dem LAN-Interface und ein aktuelles System. Das WLAN-Interface bleibt für die Erstkonfiguration aktiv, damit der Pi auch ohne angestecktes LAN-Kabel erreichbar ist.
+Bevor Samba installiert werden kann, muss das System vorbereitet werden. Dazu gehört ein korrekter Hostname, eine statische IP-Adresse auf dem LAN-Interface und ein aktuelles System.
 
 ---
 
