@@ -62,12 +62,12 @@ Router/Firewall (Gateway)
 
 ## Dokumentation
 
-- [Phase 1 – Systemvorbereitung](docs/01-vorbereitung.md)
-- [Phase 2 – Samba Installation](docs/02-samba-installation.md)
-- [Phase 3 – DNS](docs/03-dns.md)
-- [Phase 4 – Domainbeitritt](docs/04-domainbeitritt.md)
-- [Phase 5 – Benutzer und Gruppen](docs/05-benutzer-gruppen.md)
-- [Phase 6 – Gruppenrichtlinien](docs/06-gpo.md)
+- [Phase 1 – Systemvorbereitung](01-vorbereitung.md)
+- [Phase 2 – Samba Installation](02-samba-installation.md)
+- [Phase 3 – DNS](03-dns.md)
+- [Phase 4 – Domainbeitritt](04-domainbeitritt.md)
+- [Phase 5 – Benutzer und Gruppen](05-benutzer-gruppen.md)
+- [Phase 6 – Gruppenrichtlinien](06-gpo.md)
 
 ---
 
