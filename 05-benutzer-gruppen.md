@@ -107,3 +107,7 @@ Dort unter `muellerig.local → Users` sind alle Benutzer und Gruppen sichtbar. 
 - 7 Domainbenutzer angelegt
 - 5 Gruppen strukturiert nach Abteilungen
 - Benutzer den richtigen Gruppen zugeordnet
+
+---
+
+Weiter mit [Phase 6 – Gruppenrichtlinien](06-gpo.md)

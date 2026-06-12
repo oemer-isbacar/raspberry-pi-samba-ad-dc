@@ -123,3 +123,7 @@ host -t A google.com
 - Alle SRV-Records für Kerberos und LDAP sind vorhanden
 - Kerberos-Ticket kann ausgestellt werden
 - Externe DNS-Anfragen werden an den Router weitergeleitet
+
+---
+
+Weiter mit [Phase 4 – Domainbeitritt](04-domainbeitritt.md)

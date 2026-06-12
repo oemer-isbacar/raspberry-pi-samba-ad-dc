@@ -139,3 +139,7 @@ Zugangsdaten eingeben, Neustart. Danach DNS wieder auf automatisch stellen.
 - Windows-Client ist Mitglied der Domain `muellerig.local`
 - Domain-Login funktioniert
 - Client erscheint in der Computerliste auf dem DC
+
+---
+
+Weiter mit [Phase 5 – Benutzer und Gruppen](05-benutzer-gruppen.md)

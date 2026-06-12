@@ -134,3 +134,7 @@ Lowest function level of a DC: (Windows) 2008 R2
 - Samba 4 ist installiert und läuft als AD DC
 - Die Domain `muellerig.local` ist bereit
 - Kerberos ist konfiguriert
+
+---
+
+Weiter mit [Phase 3 – DNS](03-dns.md)

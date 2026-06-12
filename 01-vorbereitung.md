@@ -138,3 +138,7 @@ Erwartete Ausgabe: `dc01.muellerig.local`
 - LAN-Interface hat die statische IP `192.168.20.10`
 - Zeitzone ist `Europe/Berlin`, NTP ist aktiv
 - System ist aktuell
+
+---
+
+Weiter mit [Phase 2 – Samba Installation](02-samba-installation.md)
