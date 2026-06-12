@@ -84,4 +84,8 @@ Router/Firewall (Gateway)
 
 ## Hinweise
 
-Dieses Projekt dient Lern- und Dokumentationszwecken. Die verwendeten Passwörter (`Passwort123!`) sind Beispielwerte und sollten in produktiven Umgebungen durch sichere Passwörter ersetzt werden.
+Dieses Projekt dient Lern- und Dokumentationszwecken.
+
+Das Passwort `Passwort123!` ist ein Beispielwert der ausschließlich für dieses Lab verwendet wird. In einer produktiven Umgebung muss es durch ein sicheres Passwort ersetzt werden. Gleiches gilt für das Systempasswort des `sysadmin`-Benutzers.
+
+Die IP-Adressen (`192.168.20.x`) und der Domainname (`muellerig.local`) sind fiktiv und können beliebig angepasst werden.
