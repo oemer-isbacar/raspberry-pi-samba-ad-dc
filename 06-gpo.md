@@ -1,55 +1,87 @@
 # Phase 6 – Gruppenrichtlinien (GPO)
 
-## Ziel
+## Was in dieser Phase passiert
 
-Einfache Gruppenrichtlinien über den Windows-Client mit dem RSAT-Tool (Group Policy Management) erstellen und testen.
-
----
-
-## 6.1 RSAT auf dem Windows-Client installieren
-
-RSAT (Remote Server Administration Tools) erlaubt die Verwaltung des AD vom Windows-Client aus.
-
-`Einstellungen > Apps > Optionale Features > Feature hinzufügen`
-
-Folgende Features installieren:
-- RSAT: Active Directory Domain Services und Lightweight Directory Services Tools
-- RSAT: Gruppenrichtlinienverwaltung
+Gruppenrichtlinien (Group Policy Objects, GPO) ermöglichen es, Einstellungen zentral für alle Benutzer und Computer in der Domain festzulegen. In dieser Phase wird eine Kennwortrichtlinie erstellt und auf die gesamte Domain angewendet.
 
 ---
 
-## 6.2 Gruppenrichtlinienverwaltung öffnen
+## 6.1 Gruppenrichtlinienverwaltung öffnen
 
-`Start > Gruppenrichtlinienverwaltung`
+Auf dem Windows-Client (RSAT muss installiert sein):
 
-Verbindung zur Domain `muellerig.local` wird automatisch hergestellt.
+`Win + R` → `gpmc.msc` → Enter
 
----
-
-## 6.3 Beispiel-GPO: Hintergrundbild für alle Benutzer
-
-Diese GPO setzt ein einheitliches Desktophintergrundbild für alle Domainbenutzer.
-
-1. Rechtsklick auf `muellerig.local > Gruppenrichtlinienobjekt erstellen`
-2. Name: `Hintergrundbild-Policy`
-3. Rechtsklick auf das neue GPO > Bearbeiten
-4. Pfad: `Benutzerkonfiguration > Administrative Vorlagen > Desktop > Desktop`
-5. Einstellung: `Desktoptapete`
-6. Aktivieren, Pfad zum Bild angeben (muss auf jedem Client lokal vorhanden sein)
+Im linken Baum: `Gesamtstruktur: muellerig.local` → `Domänen` → `muellerig.local`
 
 ---
 
-## 6.4 Beispiel-GPO: Kennwortrichtlinie
+## 6.2 Neue GPO erstellen
 
-Die Standard-Kennwortrichtlinie der Domain wird über `samba-tool` angepasst:
+Rechtsklick auf `muellerig.local` → **Gruppenrichtlinienobjekt hier erstellen und verknüpfen**
+
+Name: `Kennwortrichtlinie`
+
+OK klicken.
+
+---
+
+## 6.3 GPO bearbeiten
+
+Rechtsklick auf die neue `Kennwortrichtlinie` → **Bearbeiten**
+
+Im Gruppenrichtlinien-Editor navigieren zu:
+
+`Computerkonfiguration` → `Richtlinien` → `Windows-Einstellungen` → `Sicherheitseinstellungen` → `Kontorichtlinien` → `Kennwortrichtlinien`
+
+Dort folgende Einstellungen setzen:
+
+| Einstellung | Wert |
+|---|---|
+| Kennwort muss Komplexitätsvoraussetzungen entsprechen | Aktiviert |
+| Minimale Kennwortlänge | 10 Zeichen |
+| Maximales Kennwortalter | 90 Tage |
+
+Bei "Maximales Kennwortalter" erscheint ein Hinweis dass Windows ein minimales Kennwortalter von 30 Tagen empfiehlt. Mit OK bestätigen.
+
+Editor schließen.
+
+---
+
+## 6.4 GPO anwenden und testen
+
+Auf dem Windows-Client in der CMD als Administrator:
+
+```cmd
+gpupdate /force
+```
+
+Ausgabe wenn erfolgreich:
+
+```
+Die Aktualisierung der Computerrichtlinie wurde erfolgreich abgeschlossen.
+Die Aktualisierung der Benutzerrichtlinie wurde erfolgreich abgeschlossen.
+```
+
+Prüfen welche GPOs angewendet werden:
+
+```cmd
+gpresult /r
+```
+
+Unter "Angewendete Gruppenrichtlinienobjekte" sollte `Kennwortrichtlinie` erscheinen und unter "Gruppenrichtlinienanwendung von" muss `dc01.muellerig.local` stehen.
+
+---
+
+## 6.5 Kennwortrichtlinie alternativ per samba-tool setzen
+
+Die Kennwortrichtlinie lässt sich auch direkt auf dem Pi konfigurieren:
 
 ```bash
 sudo samba-tool domain passwordsettings set \
   --min-pwd-length=10 \
   --complexity=on \
-  --max-pwd-age=90 \
-  --min-pwd-age=1 \
-  --history-length=5
+  --max-pwd-age=90
 ```
 
 Aktuelle Einstellungen anzeigen:
@@ -60,20 +92,8 @@ sudo samba-tool domain passwordsettings show
 
 ---
 
-## 6.5 GPO-Anwendung erzwingen (auf dem Client)
-
-```cmd
-gpupdate /force
-gpresult /r
-```
-
-`gpresult /r` zeigt an, welche GPOs auf den aktuellen Benutzer und Computer angewendet werden.
-
----
-
 ## Ergebnis
 
-- RSAT-Tools installiert und mit der Domain verbunden
-- Beispiel-GPO für Hintergrundbild erstellt
-- Kennwortrichtlinie angepasst
-- GPO-Anwendung erfolgreich getestet
+- GPO `Kennwortrichtlinie` ist erstellt und mit der Domain verknüpft
+- Kennwortanforderungen gelten für alle Domainbenutzer
+- GPO wird korrekt von `dc01.muellerig.local` ausgeliefert

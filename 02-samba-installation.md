@@ -1,30 +1,41 @@
-# Phase 2 – Samba 4 Installation & AD-Provisionierung
+# Phase 2 – Samba Installation und AD-Provisionierung
 
-## Ziel
+## Was in dieser Phase passiert
 
-Samba 4 installieren und als Active Directory Domain Controller für die Domain `muellerig.local` provisionieren.
+Samba 4 wird installiert und als Active Directory Domain Controller für die Domain `muellerig.local` eingerichtet. Am Ende läuft Samba als Dienst und die Domain ist bereit für Clients.
 
 ---
 
-## 2.1 Abhängigkeiten installieren
+## 2.1 Pakete installieren
 
 ```bash
 sudo apt install -y samba krb5-config krb5-user winbind smbclient
 ```
 
-Während der Installation wird nach dem Kerberos-Realm gefragt:
+Während der Installation erscheinen drei Abfragen zur Kerberos-Konfiguration:
 
+**Abfrage 1 – Default Kerberos realm:**
 ```
-Default Kerberos version 5 realm: MUELLERIG.LOCAL
-Kerberos servers for your realm: dc01.muellerig.local
-Administrative server for your Kerberos realm: dc01.muellerig.local
+MUELLERIG.LOCAL
 ```
 
-> Achtung: Der Realm wird immer in Großbuchstaben angegeben.
+**Abfrage 2 – Kerberos servers for your realm:**
+```
+dc01.muellerig.local
+```
+
+**Abfrage 3 – Administrative server for your Kerberos realm:**
+```
+dc01.muellerig.local
+```
+
+> Wichtig: Der Realm wird immer in Großbuchstaben angegeben. Das ist Pflicht, sonst schlägt die Kerberos-Authentifizierung später fehl.
 
 ---
 
 ## 2.2 Bestehende Samba-Konfiguration entfernen
+
+Die Installation legt automatisch eine Standard-`smb.conf` an. Diese muss vor der Provisionierung entfernt werden, da `samba-tool` sonst abbricht.
 
 ```bash
 sudo systemctl stop smbd nmbd winbind
@@ -33,7 +44,7 @@ sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.bak
 
 ---
 
-## 2.3 AD Domain Controller provisionieren
+## 2.3 Domain provisionieren
 
 ```bash
 sudo samba-tool domain provision \
@@ -45,26 +56,40 @@ sudo samba-tool domain provision \
   --adminpass='Passwort123!'
 ```
 
-Parameter erklärt:
+Was die Parameter bedeuten:
 
 | Parameter | Bedeutung |
 |---|---|
-| `--use-rfc2307` | Aktiviert Unix-Attribute (UID/GID) für Benutzer |
+| `--use-rfc2307` | Aktiviert Unix-Attribute für Benutzer (UID/GID) |
 | `--realm` | Kerberos-Realm, immer Großbuchstaben |
-| `--domain` | NetBIOS-Name der Domain (kurz) |
+| `--domain` | NetBIOS-Name, kurzer Name der Domain |
 | `--server-role=dc` | Dieser Server wird Domain Controller |
-| `--dns-backend=SAMBA_INTERNAL` | Samba übernimmt den DNS-Dienst intern |
+| `--dns-backend=SAMBA_INTERNAL` | Samba übernimmt den DNS-Dienst selbst |
 | `--adminpass` | Passwort für den Domain-Administrator |
 
-> Das Passwort muss Mindestanforderungen erfüllen: Großbuchstaben, Kleinbuchstaben, Ziffern, Sonderzeichen.
+Das Passwort muss Großbuchstaben, Kleinbuchstaben, Ziffern und Sonderzeichen enthalten.
+
+Die Provisionierung dauert etwa 30-60 Sekunden. Am Ende erscheint eine Zusammenfassung:
+
+```
+Server Role:           active directory domain controller
+Hostname:              dc01
+NetBIOS Domain:        MUELLERIG
+DNS Domain:            muellerig.local
+DOMAIN SID:            S-1-5-21-...
+```
 
 ---
 
 ## 2.4 Kerberos-Konfiguration übernehmen
 
+Samba hat während der Provisionierung eine passende Kerberos-Konfiguration erstellt. Diese muss als System-Konfiguration übernommen werden:
+
 ```bash
 sudo cp /var/lib/samba/private/krb5.conf /etc/krb5.conf
 ```
+
+> Hinweis: Laut Samba-Dokumentation darf diese Datei nicht als Symlink eingebunden werden, sondern muss kopiert werden.
 
 ---
 
@@ -82,19 +107,21 @@ Status prüfen:
 sudo systemctl status samba-ad-dc
 ```
 
+Der Dienst sollte `active (running)` zeigen und der Status `samba: ready to serve connections...` erscheinen.
+
 ---
 
 ## 2.6 Provisionierung testen
 
 ```bash
-samba-tool domain level show
+sudo samba-tool domain level show
 ```
 
-Erwartete Ausgabe (gekürzt):
+> Hinweis: Dieser Befehl braucht `sudo`, sonst kommt ein `Permission denied` Fehler.
+
+Erwartete Ausgabe:
 
 ```
-Domain and forest function level for domain 'DC=muellerig,DC=local'
-
 Forest function level: (Windows) 2008 R2
 Domain function level: (Windows) 2008 R2
 Lowest function level of a DC: (Windows) 2008 R2
@@ -105,6 +132,5 @@ Lowest function level of a DC: (Windows) 2008 R2
 ## Ergebnis
 
 - Samba 4 ist installiert und läuft als AD DC
-- Domain `muellerig.local` ist bereit
+- Die Domain `muellerig.local` ist bereit
 - Kerberos ist konfiguriert
-- Weiter mit [Phase 3 – DNS-Konfiguration](03-dns.md)

@@ -1,85 +1,87 @@
-# Samba 4 Active Directory Domain Controller auf Raspberry Pi 4
+# Samba 4 Active Directory Domain Controller auf dem Raspberry Pi 4
 
-Dieses Projekt dokumentiert die Einrichtung eines vollwertigen Active Directory Domain Controllers auf Basis von Samba 4, betrieben auf einem Raspberry Pi 4 (4 GB RAM) mit Raspberry Pi OS Lite.
+Dieses Projekt zeigt wie man einen vollwertigen Active Directory Domain Controller auf einem Raspberry Pi 4 betreibt. Als Software kommt Samba 4 zum Einsatz, das die AD-Funktionalität von Windows Server nachbildet. Windows-Clients können der Domain beitreten, Benutzer werden zentral verwaltet und Gruppenrichtlinien werden domainweit verteilt.
 
-Der Pi ist im Servernetz (VLAN 20, 192.168.20.0/24) hinter einer OPNsense-Firewall eingebunden. Windows-Clients können der Domain beitreten, Benutzer und Gruppen werden zentral verwaltet.
-
----
-
-## Ziel
-
-- Samba 4 als AD DC konfigurieren
-- DNS-Integration für die Domain `muellerig.local`
-- Windows-Client in die Domain aufnehmen
-- Benutzer und Gruppenrichtlinien verwalten
+Das Projekt habe ich als Lernprojekt im Rahmen meiner FISI-Umschulung aufgebaut. Die Dokumentation ist so geschrieben, dass sie auch ohne Vorkenntnisse nachvollziehbar ist.
 
 ---
 
-## Hardware
+## Was am Ende funktioniert
 
-| Komponente | Modell |
+- Samba 4 läuft als AD Domain Controller
+- Die Domain `muellerig.local` ist eingerichtet
+- DNS funktioniert intern und extern
+- Kerberos-Authentifizierung ist aktiv
+- Windows-Clients können der Domain beitreten
+- Benutzer und Gruppen werden zentral verwaltet
+- Gruppenrichtlinien werden auf alle Domain-Mitglieder angewendet
+
+---
+
+## Voraussetzungen
+
+| Was | Details |
 |---|---|
-| Domain Controller | Raspberry Pi 4 (4 GB RAM, 32 GB SD) |
-| Betriebssystem | Raspberry Pi OS Lite (64-bit, Debian 12) |
-| Netzwerk | VLAN 20 – Servernetz, 192.168.20.0/24 |
-| Firewall | Protecli Vault FW4B (OPNsense) |
-| Switch | Netgear GS308E (managed, 802.1Q VLAN) |
-| Test-Client | Lenovo ThinkStation (Windows 10) |
+| Raspberry Pi 4 | Mindestens 2 GB RAM, empfohlen 4 GB |
+| SD-Karte | Mindestens 16 GB, empfohlen 32 GB |
+| Betriebssystem | Raspberry Pi OS Lite 64-bit (Debian Bookworm) |
+| Netzwerk | LAN-Kabel empfohlen, WLAN funktioniert auch |
+| Windows-Client | Windows 10 oder 11 für den Domainbeitritt |
 
 ---
 
-## Netzwerkplan
+## Netzwerk
+
+In diesem Projekt läuft der Pi im Servernetz hinter einer OPNsense-Firewall. Der Aufbau lässt sich aber auch zuhause ohne Firewall nachbauen, solange Pi und Windows-Client im gleichen Netz hängen.
 
 ```
-OPNsense (192.168.20.1)
-        |
-   [VLAN 20 – Server]
+Router/Firewall (Gateway)
         |
    Raspberry Pi 4
-   192.168.20.10
+   IP: 192.168.20.10
    dc01.muellerig.local
+        |
+   Windows-Client
+   IP: 192.168.20.x
 ```
 
 ---
 
 ## Projektphasen
 
-| Phase | Inhalt | Status |
-|---|---|---|
-| 1 | Vorbereitung & Systemkonfiguration | Geplant |
-| 2 | Samba 4 Installation & AD-Provisionierung | Geplant |
-| 3 | DNS-Konfiguration | Geplant |
-| 4 | Windows-Client Domainbeitritt | Geplant |
-| 5 | Benutzer & Gruppen anlegen | Geplant |
-| 6 | Gruppenrichtlinien (GPO) | Geplant |
-| 7 | Tests & Dokumentation | Geplant |
+| Phase | Inhalt |
+|---|---|
+| 1 | Systemvorbereitung (Hostname, IP, Zeit) |
+| 2 | Samba 4 installieren und Domain aufsetzen |
+| 3 | DNS konfigurieren und testen |
+| 4 | Windows-Client in die Domain aufnehmen |
+| 5 | Benutzer und Gruppen anlegen |
+| 6 | Gruppenrichtlinien einrichten |
 
 ---
 
 ## Dokumentation
 
-Die ausführliche Schritt-für-Schritt-Dokumentation liegt im Ordner [`docs/`](docs/):
-
-- [01-vorbereitung.md](docs/01-vorbereitung.md) – Systemvorbereitung, IP, Hostname
-- [02-samba-installation.md](docs/02-samba-installation.md) – Installation und AD-Provisionierung
-- [03-dns.md](docs/03-dns.md) – DNS-Konfiguration und Überprüfung
-- [04-domainbeitritt.md](docs/04-domainbeitritt.md) – Windows-Client einbinden
-- [05-benutzer-gruppen.md](docs/05-benutzer-gruppen.md) – Benutzerverwaltung
-- [06-gpo.md](docs/06-gpo.md) – Gruppenrichtlinien
+- [Phase 1 – Systemvorbereitung](docs/01-vorbereitung.md)
+- [Phase 2 – Samba Installation](docs/02-samba-installation.md)
+- [Phase 3 – DNS](docs/03-dns.md)
+- [Phase 4 – Domainbeitritt](docs/04-domainbeitritt.md)
+- [Phase 5 – Benutzer und Gruppen](docs/05-benutzer-gruppen.md)
+- [Phase 6 – Gruppenrichtlinien](docs/06-gpo.md)
 
 ---
 
 ## Verwendete Software
 
-| Software | Version | Zweck |
-|---|---|---|
-| Raspberry Pi OS Lite | Debian 12 (Bookworm) | Basisbetriebssystem |
-| Samba | 4.17+ | AD Domain Controller |
-| Kerberos | MIT Kerberos | Authentifizierung |
-| BIND9 / Samba-intern | – | DNS |
+| Software | Zweck |
+|---|---|
+| Raspberry Pi OS Lite 64-bit (Bookworm) | Basisbetriebssystem |
+| Samba 4.22 | Active Directory Domain Controller |
+| MIT Kerberos | Authentifizierung |
+| NetworkManager | Netzwerkkonfiguration |
 
 ---
 
-## Lizenz
+## Hinweise
 
-Dieses Projekt dient Lern- und Dokumentationszwecken im Rahmen einer FISI-Umschulung (IHK).
+Dieses Projekt dient Lern- und Dokumentationszwecken. Die verwendeten Passwörter (`Passwort123!`) sind Beispielwerte und sollten in produktiven Umgebungen durch sichere Passwörter ersetzt werden.

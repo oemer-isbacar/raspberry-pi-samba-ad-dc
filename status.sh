@@ -1,5 +1,5 @@
 #!/bin/bash
-# status.sh – schnelle Übersicht über den Samba AD DC
+# status.sh – Schnelle Übersicht über den Samba AD DC
 
 echo "=== Samba AD DC Status ==="
 echo ""
@@ -26,4 +26,4 @@ host -t SRV _kerberos._udp.muellerig.local 127.0.0.1 2>/dev/null
 echo ""
 
 echo "--- Kerberos Ticket ---"
-klist 2>/dev/null || echo "Kein aktives Ticket (kinit administrator@MUELLERIG.LOCAL)"
+klist 2>/dev/null || echo "Kein aktives Ticket. Mit 'kinit administrator@MUELLERIG.LOCAL' anmelden."

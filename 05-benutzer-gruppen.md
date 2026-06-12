@@ -1,26 +1,24 @@
-# Phase 5 – Benutzer & Gruppen anlegen
+# Phase 5 – Benutzer und Gruppen anlegen
 
-## Ziel
+## Was in dieser Phase passiert
 
-Realistische Benutzer und Gruppen für das fiktive Unternehmen Müller Ingenieurbüro GmbH anlegen. Das spiegelt eine typische kleine Unternehmensstruktur wider.
+Für das fiktive Unternehmen Müller Ingenieurbüro GmbH werden Benutzer und Gruppen angelegt. Die Struktur orientiert sich an einer typischen kleinen Firma mit verschiedenen Abteilungen.
 
 ---
 
-## 5.1 Organisationsstruktur
+## Organisationsstruktur
 
-Das Unternehmen hat 10 Mitarbeiter in zwei Abteilungen:
-
-| Abteilung | Mitarbeiter |
+| Abteilung | Benutzer |
 |---|---|
 | Geschäftsführung | m.mueller |
 | Buchhaltung | a.schmidt, k.bauer |
 | Technik | t.wagner, s.hoffmann, p.richter |
 | Empfang | l.klein |
-| IT (Admin) | admin |
+| IT-Administration | administrator |
 
 ---
 
-## 5.2 Gruppen anlegen
+## 5.1 Gruppen anlegen
 
 ```bash
 sudo samba-tool group add Geschaeftsfuehrung
@@ -32,7 +30,7 @@ sudo samba-tool group add IT-Admins
 
 ---
 
-## 5.3 Benutzer anlegen
+## 5.2 Benutzer anlegen
 
 ```bash
 sudo samba-tool user create m.mueller 'Passwort123!' \
@@ -66,7 +64,7 @@ sudo samba-tool user create l.klein 'Passwort123!' \
 
 ---
 
-## 5.4 Benutzer zu Gruppen hinzufügen
+## 5.3 Benutzer den Gruppen zuweisen
 
 ```bash
 sudo samba-tool group addmembers Geschaeftsfuehrung m.mueller
@@ -78,15 +76,29 @@ sudo samba-tool group addmembers IT-Admins administrator
 
 ---
 
-## 5.5 Überprüfung
+## 5.4 Überprüfung
+
+Alle Benutzer anzeigen:
 
 ```bash
-# Alle Benutzer anzeigen
-samba-tool user list
-
-# Mitglieder einer Gruppe anzeigen
-samba-tool group listmembers Technik
+sudo samba-tool user list
 ```
+
+Mitglieder einer Gruppe anzeigen:
+
+```bash
+sudo samba-tool group listmembers Technik
+```
+
+---
+
+## 5.5 Grafische Verwaltung per RSAT
+
+Falls RSAT auf dem Windows-Client installiert ist, können Benutzer und Gruppen auch grafisch verwaltet werden:
+
+`Win + R` → `dsa.msc`
+
+Dort unter `muellerig.local → Users` sind alle Benutzer und Gruppen sichtbar. Neue Objekte lassen sich per Rechtsklick anlegen.
 
 ---
 
@@ -95,4 +107,3 @@ samba-tool group listmembers Technik
 - 7 Domainbenutzer angelegt
 - 5 Gruppen strukturiert nach Abteilungen
 - Benutzer den richtigen Gruppen zugeordnet
-- Weiter mit [Phase 6 – Gruppenrichtlinien](06-gpo.md)

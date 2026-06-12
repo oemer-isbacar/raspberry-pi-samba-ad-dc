@@ -1,90 +1,136 @@
-# Phase 4 – Windows-Client Domainbeitritt
+# Phase 4 – Windows-Client in die Domain aufnehmen
 
-## Ziel
+## Was in dieser Phase passiert
 
-Einen Windows-10-Client in die Domain `muellerig.local` aufnehmen. Der Client muss im VLAN 20 erreichbar sein und den Pi als DNS-Server nutzen.
+Ein Windows-Client tritt der Domain `muellerig.local` bei. Danach kann man sich am Client mit einem Domainbenutzer anmelden.
 
 ---
 
-## 4.1 Voraussetzungen auf dem Windows-Client
+## 4.1 Voraussetzungen
 
-Der Windows-Client muss:
-
-- Im gleichen VLAN 20 hängen (192.168.20.x)
-- Den Pi als primären DNS-Server eingetragen haben (192.168.20.10)
-- Netzwerkkonnektivität zum Pi haben (ping 192.168.20.10)
+- Der Windows-Client muss im gleichen Netz wie der Pi sein
+- Pi und Client müssen sich gegenseitig anpingen können
+- Der Client braucht den Pi als DNS-Server
 
 ---
 
 ## 4.2 DNS auf dem Windows-Client setzen
 
-`Systemsteuerung > Netzwerkverbindungen > Ethernet > IPv4-Eigenschaften`
+Der Windows-Client muss den Pi als DNS-Server nutzen, damit er die Domain `muellerig.local` auflösen kann. Ohne das schlägt der Domainbeitritt fehl.
+
+`Win + R` → `ncpa.cpl` → Enter
+
+Auf die aktive Netzwerkverbindung (WLAN oder LAN) rechtsklicken → Eigenschaften → Internetprotokoll Version 4 (TCP/IPv4) → Eigenschaften
+
+Dort "Folgenden DNS-Server verwenden" auswählen:
 
 ```
-IP-Adresse:       192.168.20.20
-Subnetzmaske:     255.255.255.0
-Standardgateway:  192.168.20.1
-DNS-Server:       192.168.20.10
+Bevorzugter DNS-Server: 192.168.20.10
 ```
+
+OK, OK.
+
+> Hinweis: Falls der Client per IPv6 verbunden ist und nslookup trotzdem eine falsche Adresse liefert, IPv6 in den Netzwerkeinstellungen temporär deaktivieren. Den Haken bei "Internetprotokoll Version 6 (TCP/IPv6)" entfernen.
 
 ---
 
-## 4.3 DNS-Auflösung vom Client testen
+## 4.3 DNS-Auflösung testen
 
-In der Windows-Eingabeaufforderung (CMD als Administrator):
+In der Eingabeaufforderung (CMD):
 
 ```cmd
 nslookup muellerig.local
-nslookup dc01.muellerig.local
 ```
 
-Beide Abfragen müssen `192.168.20.10` zurückgeben.
+Erwartete Ausgabe:
+
+```
+Server:  dc01.muellerig.local
+Address:  192.168.20.10
+
+Name:    muellerig.local
+Address:  192.168.20.10
+```
+
+Erst wenn diese Abfrage funktioniert, den Domainbeitritt starten.
 
 ---
 
 ## 4.4 Domain beitreten
 
-`Systemsteuerung > System > Erweiterte Systemeinstellungen > Computername > Ändern`
+`Win + R` → `sysdm.cpl` → Enter
 
-- Mitglied von: Domain
-- Domain: `muellerig.local`
+Reiter "Computername" → "Ändern" → bei "Mitglied von" auf **Domäne** wechseln:
 
-Es wird nach Zugangsdaten gefragt:
+```
+muellerig.local
+```
+
+OK klicken. Es erscheint ein Anmeldefenster. Dort die Domain-Administrator-Zugangsdaten eingeben:
 
 ```
 Benutzer:   administrator
-Passwort:   (das beim Provisionieren gesetzte Passwort)
+Passwort:   Passwort123!
 ```
 
-Nach erfolgreichem Beitritt erscheint die Meldung:
+Bei Erfolg erscheint:
 
 ```
 Willkommen in der Domäne muellerig.local.
 ```
 
-Neustart des Clients erforderlich.
+Danach ist ein Neustart erforderlich.
 
 ---
 
-## 4.5 Domainbeitritt überprüfen
+## 4.5 Domain-Login testen
 
-Auf dem Pi:
+Nach dem Neustart am Anmeldebildschirm auf "Anderer Benutzer" klicken und einen Domainbenutzer eingeben:
+
+```
+muellerig\administrator
+```
+
+oder einen der angelegten Benutzer aus Phase 5.
+
+---
+
+## 4.6 Domainbeitritt auf dem Pi prüfen
 
 ```bash
-samba-tool computer list
+sudo samba-tool computer list
 ```
 
 Der Windows-Client sollte in der Liste erscheinen.
 
 ---
 
-## 4.6 Domain-Login testen
+## 4.7 RSAT installieren (optional aber empfohlen)
 
-Am Windows-Client mit einem Domainbenutzer anmelden:
+Mit den Remote Server Administration Tools lässt sich die Domain grafisch verwalten — Benutzer, Gruppen, Gruppenrichtlinien, alles per Mausklick wie bei Windows Server.
 
-```
-muellerig\administrator
-```
+`Einstellungen` → `System` → `Optionale Features` → `Feature hinzufügen`
+
+Suche nach `active` und installiere:
+- RSAT: Tools für Active Directory Domain Services und Lightweight Directory Services
+
+Suche nach `gruppen` und installiere:
+- RSAT: Gruppenrichtlinienverwaltung
+
+Nach der Installation:
+
+- `dsa.msc` → Active Directory Benutzer und Computer
+- `gpmc.msc` → Gruppenrichtlinienverwaltung
+
+---
+
+## 4.8 Client wieder aus der Domain entfernen
+
+Um den Client wieder aus der Domain zu nehmen:
+
+`sysdm.cpl` → Computername → Ändern → bei "Mitglied von" auf **Arbeitsgruppe** → `WORKGROUP`
+
+Zugangsdaten eingeben, Neustart. Danach DNS wieder auf automatisch stellen.
 
 ---
 
@@ -93,4 +139,3 @@ muellerig\administrator
 - Windows-Client ist Mitglied der Domain `muellerig.local`
 - Domain-Login funktioniert
 - Client erscheint in der Computerliste auf dem DC
-- Weiter mit [Phase 5 – Benutzer & Gruppen](05-benutzer-gruppen.md)
