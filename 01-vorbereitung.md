@@ -14,6 +14,8 @@ Der Pi muss eingeschaltet und im Netzwerk erreichbar sein. Die aktuelle IP-Adres
 ssh sysadmin@<IP-Adresse>
 ```
 
+> Hinweis: In dieser Phase verbindet man sich noch über die DHCP-Adresse des Pi, nicht über die statische IP. Die statische IP `192.168.20.10` wird erst in Schritt 1.4 gesetzt und ist nur erreichbar wenn das Gateway `192.168.20.1` im Netz existiert. Wer den Pi direkt im Zielnetz einrichtet, kann nach dem Neustart in Schritt 1.6 direkt mit der statischen IP arbeiten.
+
 ---
 
 ## 1.2 System aktualisieren
@@ -124,7 +126,7 @@ sudo reboot
 Nach dem Neustart neu verbinden und prüfen:
 
 ```bash
-ssh sysadmin@<WLAN-IP>
+ssh sysadmin@<IP-Adresse>
 hostname -f
 ```
 
