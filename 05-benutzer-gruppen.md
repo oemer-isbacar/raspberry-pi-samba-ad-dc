@@ -2,23 +2,17 @@
 
 ## Was in dieser Phase passiert
 
-Für das fiktive Unternehmen Müller Ingenieurbüro GmbH werden Benutzer und Gruppen angelegt. Die Struktur orientiert sich an einer typischen kleinen Firma mit verschiedenen Abteilungen.
-
----
-
-## Organisationsstruktur
-
-| Abteilung | Benutzer |
-|---|---|
-| Geschäftsführung | m.mueller |
-| Buchhaltung | a.schmidt, k.bauer |
-| Technik | t.wagner, s.hoffmann, p.richter |
-| Empfang | l.klein |
-| IT-Administration | administrator |
+Benutzer und Gruppen werden für die Domain angelegt. Die Struktur kann beliebig an die eigene Umgebung angepasst werden.
 
 ---
 
 ## 5.1 Gruppen anlegen
+
+```bash
+sudo samba-tool group add <Gruppenname>
+```
+
+Beispiele:
 
 ```bash
 sudo samba-tool group add Geschaeftsfuehrung
@@ -33,33 +27,17 @@ sudo samba-tool group add IT-Admins
 ## 5.2 Benutzer anlegen
 
 ```bash
-sudo samba-tool user create m.mueller 'Passwort123!' \
-  --given-name="Max" --surname="Mueller" \
-  --mail-address="m.mueller@muellerig.local"
+sudo samba-tool user create <benutzername> '<passwort>' \
+  --given-name="<Vorname>" --surname="<Nachname>" \
+  --mail-address="<benutzername>@<domain-name>.local"
+```
 
-sudo samba-tool user create a.schmidt 'Passwort123!' \
-  --given-name="Anna" --surname="Schmidt" \
-  --mail-address="a.schmidt@muellerig.local"
+Beispiel:
 
-sudo samba-tool user create k.bauer 'Passwort123!' \
-  --given-name="Klaus" --surname="Bauer" \
-  --mail-address="k.bauer@muellerig.local"
-
-sudo samba-tool user create t.wagner 'Passwort123!' \
-  --given-name="Thomas" --surname="Wagner" \
-  --mail-address="t.wagner@muellerig.local"
-
-sudo samba-tool user create s.hoffmann 'Passwort123!' \
-  --given-name="Sandra" --surname="Hoffmann" \
-  --mail-address="s.hoffmann@muellerig.local"
-
-sudo samba-tool user create p.richter 'Passwort123!' \
-  --given-name="Peter" --surname="Richter" \
-  --mail-address="p.richter@muellerig.local"
-
-sudo samba-tool user create l.klein 'Passwort123!' \
-  --given-name="Laura" --surname="Klein" \
-  --mail-address="l.klein@muellerig.local"
+```bash
+sudo samba-tool user create m.mustermann 'Passwort123!' \
+  --given-name="Max" --surname="Mustermann" \
+  --mail-address="m.mustermann@beispiel.local"
 ```
 
 ---
@@ -67,11 +45,13 @@ sudo samba-tool user create l.klein 'Passwort123!' \
 ## 5.3 Benutzer den Gruppen zuweisen
 
 ```bash
-sudo samba-tool group addmembers Geschaeftsfuehrung m.mueller
-sudo samba-tool group addmembers Buchhaltung a.schmidt,k.bauer
-sudo samba-tool group addmembers Technik t.wagner,s.hoffmann,p.richter
-sudo samba-tool group addmembers Empfang l.klein
-sudo samba-tool group addmembers IT-Admins administrator
+sudo samba-tool group addmembers <Gruppenname> <benutzername>
+```
+
+Mehrere Benutzer auf einmal:
+
+```bash
+sudo samba-tool group addmembers <Gruppenname> benutzer1,benutzer2,benutzer3
 ```
 
 ---
@@ -87,7 +67,7 @@ sudo samba-tool user list
 Mitglieder einer Gruppe anzeigen:
 
 ```bash
-sudo samba-tool group listmembers Technik
+sudo samba-tool group listmembers <Gruppenname>
 ```
 
 ---
@@ -98,14 +78,14 @@ Falls RSAT auf dem Windows-Client installiert ist, können Benutzer und Gruppen 
 
 `Win + R` → `dsa.msc`
 
-Dort unter `muellerig.local → Users` sind alle Benutzer und Gruppen sichtbar. Neue Objekte lassen sich per Rechtsklick anlegen.
+Dort unter der eigenen Domain sind alle Benutzer und Gruppen sichtbar. Neue Objekte lassen sich per Rechtsklick anlegen.
 
 ---
 
 ## Ergebnis
 
-- 7 Domainbenutzer angelegt
-- 5 Gruppen strukturiert nach Abteilungen
+- Domainbenutzer sind angelegt
+- Gruppen sind strukturiert
 - Benutzer den richtigen Gruppen zugeordnet
 
 ---

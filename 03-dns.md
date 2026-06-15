@@ -8,23 +8,21 @@ Samba übernimmt den DNS-Dienst für die Domain. Damit das funktioniert, muss de
 
 ## 3.1 DNS auf sich selbst umstellen
 
-Auf Pi OS Bookworm verwaltet NetworkManager die DNS-Konfiguration. Damit der Pi Samba als DNS nutzt, muss `127.0.0.1` als DNS-Server eingetragen werden.
-
-Zuerst die UUID der aktiven Verbindung herausfinden:
+Zuerst die UUID der aktiven LAN-Verbindung herausfinden:
 
 ```bash
 nmcli con show
 ```
 
-Dann DNS setzen und automatische DNS-Zuweisung vom Router deaktivieren:
+Dann DNS auf die eigene IP setzen und automatische DNS-Zuweisung vom Router deaktivieren:
 
 ```bash
-sudo nmcli con mod <UUID-der-aktiven-Verbindung> ipv4.dns "127.0.0.1"
-sudo nmcli con mod <UUID-der-aktiven-Verbindung> ipv4.ignore-auto-dns yes
-sudo nmcli con up <UUID-der-aktiven-Verbindung>
+sudo nmcli con mod <UUID> ipv4.dns "127.0.0.1"
+sudo nmcli con mod <UUID> ipv4.ignore-auto-dns yes
+sudo nmcli con up <UUID>
 ```
 
-> Hinweis: Falls der Verbindungsname ein `!` enthält (z.B. `netplan-wlan0-FRITZ!Box`), schlägt der Befehl mit dem Namen fehl, weil bash das `!` als Sonderzeichen interpretiert. In diesem Fall die UUID aus `nmcli con show` verwenden.
+> Wichtig: Die UUID aus der Ausgabe von `nmcli con show` kopieren und anstelle von `<UUID>` eintragen. Spitze Klammern `<>` sind Platzhalter und dürfen nicht mit eingegeben werden.
 
 Prüfen ob die Änderung übernommen wurde:
 
@@ -46,17 +44,17 @@ nameserver 127.0.0.1
 Samba legt bei der Provisionierung automatisch die nötigen DNS-SRV-Records an. Diese Records sind wichtig damit Windows-Clients den Domain Controller finden können.
 
 ```bash
-host -t SRV _kerberos._udp.muellerig.local
-host -t SRV _ldap._tcp.muellerig.local
-host -t A dc01.muellerig.local
+host -t SRV _kerberos._udp.<domain-name>.local
+host -t SRV _ldap._tcp.<domain-name>.local
+host -t A dc01.<domain-name>.local
 ```
 
-Erwartete Ausgaben:
+Erwartete Ausgaben (mit den eigenen Werten):
 
 ```
-_kerberos._udp.muellerig.local has SRV record 0 100 88 dc01.muellerig.local.
-_ldap._tcp.muellerig.local has SRV record 0 100 389 dc01.muellerig.local.
-dc01.muellerig.local has address 192.168.20.10
+_kerberos._udp.<domain-name>.local has SRV record 0 100 88 dc01.<domain-name>.local.
+_ldap._tcp.<domain-name>.local has SRV record 0 100 389 dc01.<domain-name>.local.
+dc01.<domain-name>.local has address <statische-IP>
 ```
 
 Falls die Abfragen mit `NXDOMAIN` fehlschlagen, nutzt der Pi noch den Router als DNS. In diesem Fall nochmal prüfen ob `resolv.conf` nur `127.0.0.1` enthält.
@@ -66,7 +64,7 @@ Falls die Abfragen mit `NXDOMAIN` fehlschlagen, nutzt der Pi noch den Router als
 ## 3.3 Kerberos testen
 
 ```bash
-kinit administrator@MUELLERIG.LOCAL
+kinit administrator@<DOMAIN-NAME>.LOCAL
 ```
 
 Nach der Passworteingabe ein Ticket abrufen:
@@ -75,33 +73,25 @@ Nach der Passworteingabe ein Ticket abrufen:
 klist
 ```
 
-Erwartete Ausgabe:
-
-```
-Ticket cache: FILE:/tmp/krb5cc_1000
-Default principal: administrator@MUELLERIG.LOCAL
-
-Valid starting     Expires            Service principal
-12/06/26 16:58:19  13/06/26 02:58:19  krbtgt/MUELLERIG.LOCAL@MUELLERIG.LOCAL
-```
+Die Ausgabe zeigt das ausgestellte Ticket mit Ablaufzeit. Die genauen Zeitangaben variieren je nach aktuellem Datum.
 
 ---
 
 ## 3.4 DNS-Weiterleitung konfigurieren
 
-Damit auch externe Domains aufgelöst werden können (z.B. google.com), muss Samba Anfragen die es nicht selbst beantworten kann an den Router weiterleiten.
+Damit auch externe Domains aufgelöst werden können (z.B. für Software-Updates), muss Samba Anfragen die es nicht selbst beantworten kann an den Router weiterleiten.
 
 ```bash
 sudo nano /etc/samba/smb.conf
 ```
 
-In der `[global]` Sektion darf nur ein `dns forwarder` Eintrag stehen. Die Provisionierung trägt manchmal automatisch einen ein — diesen prüfen und ggf. auf die richtige Router-IP anpassen:
+In der `[global]` Sektion darf nur ein `dns forwarder` Eintrag stehen. Die Provisionierung trägt manchmal automatisch einen ein — diesen prüfen und auf die eigene Gateway-IP anpassen:
 
 ```ini
-dns forwarder = 192.168.20.1
+dns forwarder = <Gateway-IP>
 ```
 
-> Hinweis: Die IP des Routers anpassen. Zuhause ist das oft `192.168.178.1` (FritzBox) oder `192.168.1.1`. Im Schulnetz mit OPNsense ist es `192.168.20.1`.
+> Hinweis: Die Provisionierung trägt manchmal automatisch eine falsche oder doppelte `dns forwarder` Zeile ein. Prüfen ob nur ein einziger Eintrag mit der richtigen Gateway-IP vorhanden ist.
 
 Samba neu starten:
 

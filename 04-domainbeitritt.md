@@ -2,7 +2,7 @@
 
 ## Was in dieser Phase passiert
 
-Ein Windows-Client tritt der Domain `muellerig.local` bei. Danach kann man sich am Client mit einem Domainbenutzer anmelden.
+Ein Windows-Client tritt der Domain bei. Danach kann man sich am Client mit einem Domainbenutzer anmelden.
 
 ---
 
@@ -16,21 +16,21 @@ Ein Windows-Client tritt der Domain `muellerig.local` bei. Danach kann man sich 
 
 ## 4.2 DNS auf dem Windows-Client setzen
 
-Der Windows-Client muss den Pi als DNS-Server nutzen, damit er die Domain `muellerig.local` auflösen kann. Ohne das schlägt der Domainbeitritt fehl.
+Der Windows-Client muss den Pi als DNS-Server nutzen, damit er die Domain auflösen kann. Ohne das schlägt der Domainbeitritt fehl.
 
 `Win + R` → `ncpa.cpl` → Enter
 
-Auf die aktive Netzwerkverbindung (WLAN oder LAN) rechtsklicken → Eigenschaften → Internetprotokoll Version 4 (TCP/IPv4) → Eigenschaften
+Auf die aktive Netzwerkverbindung rechtsklicken → Eigenschaften → Internetprotokoll Version 4 (TCP/IPv4) → Eigenschaften
 
 Dort "Folgenden DNS-Server verwenden" auswählen:
 
 ```
-Bevorzugter DNS-Server: 192.168.20.10
+Bevorzugter DNS-Server: <statische-IP-des-Pi>
 ```
 
 OK, OK.
 
-> Hinweis: Falls der Client per IPv6 verbunden ist und nslookup trotzdem eine falsche Adresse liefert, IPv6 in den Netzwerkeinstellungen temporär deaktivieren. Den Haken bei "Internetprotokoll Version 6 (TCP/IPv6)" entfernen.
+> Hinweis: Falls nslookup im nächsten Schritt trotzdem eine falsche Adresse liefert, liegt das meist daran dass Windows die IPv6-Adresse des Routers als DNS nutzt. In diesem Fall IPv6 in den Netzwerkeinstellungen temporär deaktivieren: Den Haken bei "Internetprotokoll Version 6 (TCP/IPv6)" entfernen.
 
 ---
 
@@ -39,17 +39,17 @@ OK, OK.
 In der Eingabeaufforderung (CMD):
 
 ```cmd
-nslookup muellerig.local
+nslookup <domain-name>.local
 ```
 
 Erwartete Ausgabe:
 
 ```
-Server:  dc01.muellerig.local
-Address:  192.168.20.10
+Server:  dc01.<domain-name>.local
+Address:  <statische-IP-des-Pi>
 
-Name:    muellerig.local
-Address:  192.168.20.10
+Name:    <domain-name>.local
+Address:  <statische-IP-des-Pi>
 ```
 
 Erst wenn diese Abfrage funktioniert, den Domainbeitritt starten.
@@ -63,20 +63,20 @@ Erst wenn diese Abfrage funktioniert, den Domainbeitritt starten.
 Reiter "Computername" → "Ändern" → bei "Mitglied von" auf **Domäne** wechseln:
 
 ```
-muellerig.local
+<domain-name>.local
 ```
 
 OK klicken. Es erscheint ein Anmeldefenster. Dort die Domain-Administrator-Zugangsdaten eingeben:
 
 ```
 Benutzer:   administrator
-Passwort:   Passwort123!
+Passwort:   <administrator-passwort>
 ```
 
 Bei Erfolg erscheint:
 
 ```
-Willkommen in der Domäne muellerig.local.
+Willkommen in der Domäne <domain-name>.local.
 ```
 
 Danach ist ein Neustart erforderlich.
@@ -85,13 +85,11 @@ Danach ist ein Neustart erforderlich.
 
 ## 4.5 Domain-Login testen
 
-Nach dem Neustart am Anmeldebildschirm auf "Anderer Benutzer" klicken und einen Domainbenutzer eingeben:
+Nach dem Neustart am Anmeldebildschirm auf "Anderer Benutzer" klicken:
 
 ```
-muellerig\administrator
+<domain-name>\administrator
 ```
-
-oder einen der angelegten Benutzer aus Phase 5.
 
 ---
 
@@ -136,7 +134,7 @@ Zugangsdaten eingeben, Neustart. Danach DNS wieder auf automatisch stellen.
 
 ## Ergebnis
 
-- Windows-Client ist Mitglied der Domain `muellerig.local`
+- Windows-Client ist Mitglied der Domain
 - Domain-Login funktioniert
 - Client erscheint in der Computerliste auf dem DC
 

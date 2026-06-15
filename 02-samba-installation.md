@@ -1,8 +1,15 @@
-# Phase 2 – Samba Installation und AD-Provisionierung
+# Phase 2 – Samba 4 Installation und AD-Provisionierung
 
 ## Was in dieser Phase passiert
 
-Samba 4 wird installiert und als Active Directory Domain Controller für die Domain `muellerig.local` eingerichtet. Am Ende läuft Samba als Dienst und die Domain ist bereit für Clients.
+Samba 4 wird installiert und als Active Directory Domain Controller eingerichtet. Am Ende läuft Samba als Dienst und die Domain ist bereit für Clients.
+
+> Wichtig: Für die Installation braucht der Pi Internetzugang. Da in Phase 1 die eigene IP als DNS eingetragen wurde und Samba noch nicht läuft, kann der Pi noch keine externen Namen auflösen. Den DNS deshalb vor der Installation temporär auf das Gateway setzen:
+> ```bash
+> sudo nmcli con mod <UUID> ipv4.dns "<Gateway-IP>"
+> sudo nmcli con up <UUID>
+> ```
+> Nach der Installation wird der DNS wieder auf die eigene IP zurückgestellt (Phase 3).
 
 ---
 
@@ -16,17 +23,17 @@ Während der Installation erscheinen drei Abfragen zur Kerberos-Konfiguration:
 
 **Abfrage 1 – Default Kerberos realm:**
 ```
-MUELLERIG.LOCAL
+<DOMAIN-NAME>.LOCAL
 ```
 
 **Abfrage 2 – Kerberos servers for your realm:**
 ```
-dc01.muellerig.local
+dc01.<domain-name>.local
 ```
 
 **Abfrage 3 – Administrative server for your Kerberos realm:**
 ```
-dc01.muellerig.local
+dc01.<domain-name>.local
 ```
 
 > Wichtig: Der Realm wird immer in Großbuchstaben angegeben. Das ist Pflicht, sonst schlägt die Kerberos-Authentifizierung später fehl.
@@ -49,11 +56,11 @@ sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.bak
 ```bash
 sudo samba-tool domain provision \
   --use-rfc2307 \
-  --realm=MUELLERIG.LOCAL \
-  --domain=MUELLERIG \
+  --realm=<DOMAIN-NAME>.LOCAL \
+  --domain=<DOMAIN-NAME> \
   --server-role=dc \
   --dns-backend=SAMBA_INTERNAL \
-  --adminpass='Passwort123!'
+  --adminpass='<sicheres-passwort>'
 ```
 
 Was die Parameter bedeuten:
@@ -74,16 +81,14 @@ Die Provisionierung dauert etwa 30-60 Sekunden. Am Ende erscheint eine Zusammenf
 ```
 Server Role:           active directory domain controller
 Hostname:              dc01
-NetBIOS Domain:        MUELLERIG
-DNS Domain:            muellerig.local
+NetBIOS Domain:        <DOMAIN-NAME>
+DNS Domain:            <domain-name>.local
 DOMAIN SID:            S-1-5-21-...
 ```
 
 ---
 
 ## 2.4 Kerberos-Konfiguration übernehmen
-
-Samba hat während der Provisionierung eine passende Kerberos-Konfiguration erstellt. Diese muss als System-Konfiguration übernommen werden:
 
 ```bash
 sudo cp /var/lib/samba/private/krb5.conf /etc/krb5.conf
@@ -107,7 +112,7 @@ Status prüfen:
 sudo systemctl status samba-ad-dc
 ```
 
-Der Dienst sollte `active (running)` zeigen und der Status `samba: ready to serve connections...` erscheinen.
+Der Dienst sollte `active (running)` zeigen und die Statuszeile `samba: ready to serve connections...` erscheinen.
 
 ---
 
@@ -132,7 +137,7 @@ Lowest function level of a DC: (Windows) 2008 R2
 ## Ergebnis
 
 - Samba 4 ist installiert und läuft als AD DC
-- Die Domain `muellerig.local` ist bereit
+- Die Domain ist bereit
 - Kerberos ist konfiguriert
 
 ---

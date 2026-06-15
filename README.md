@@ -2,14 +2,11 @@
 
 Dieses Projekt zeigt wie man einen vollwertigen Active Directory Domain Controller auf einem Raspberry Pi 4 betreibt. Als Software kommt Samba 4 zum Einsatz, das die AD-Funktionalität von Windows Server nachbildet. Windows-Clients können der Domain beitreten, Benutzer werden zentral verwaltet und Gruppenrichtlinien werden domainweit verteilt.
 
-Das Projekt habe ich als Lernprojekt im Rahmen meiner FISI-Umschulung aufgebaut. Die Dokumentation ist so geschrieben, dass sie auch ohne Vorkenntnisse nachvollziehbar ist.
-
 ---
 
 ## Was am Ende funktioniert
 
 - Samba 4 läuft als AD Domain Controller
-- Die Domain `muellerig.local` ist eingerichtet
 - DNS funktioniert intern und extern
 - Kerberos-Authentifizierung ist aktiv
 - Windows-Clients können der Domain beitreten
@@ -32,18 +29,19 @@ Das Projekt habe ich als Lernprojekt im Rahmen meiner FISI-Umschulung aufgebaut.
 
 ## Netzwerk
 
-In diesem Projekt läuft der Pi im Servernetz hinter einer OPNsense-Firewall. Der Aufbau lässt sich aber auch zuhause ohne Firewall nachbauen, solange Pi und Windows-Client im gleichen Netz hängen.
+Pi und Windows-Client müssen im gleichen Netz hängen. Der Pi bekommt eine statische IP, der Windows-Client nutzt ihn als DNS-Server.
 
 ```
 Router/Firewall (Gateway)
         |
    Raspberry Pi 4
-   IP: 192.168.20.10
-   dc01.muellerig.local
+   statische IP: <frei wählbar>
+   Hostname: dc01.<domain-name>.local
         |
    Windows-Client
-   IP: 192.168.20.x
 ```
+
+> Hinweis: Falls der Pi an einem managed Switch mit VLANs betrieben wird, muss der Switch-Port als **Untagged Access Port** des gewünschten VLANs konfiguriert sein. Der Pi versteht kein VLAN-Tagging.
 
 ---
 
@@ -76,7 +74,7 @@ Router/Firewall (Gateway)
 | Software | Zweck |
 |---|---|
 | Raspberry Pi OS Lite 64-bit (Bookworm) | Basisbetriebssystem |
-| Samba 4.22 | Active Directory Domain Controller |
+| Samba 4 | Active Directory Domain Controller |
 | MIT Kerberos | Authentifizierung |
 | NetworkManager | Netzwerkkonfiguration |
 
@@ -86,6 +84,6 @@ Router/Firewall (Gateway)
 
 Dieses Projekt dient Lern- und Dokumentationszwecken.
 
-Das Passwort `Passwort123!` ist ein Beispielwert der ausschließlich für dieses Lab verwendet wird. In einer produktiven Umgebung muss es durch ein sicheres Passwort ersetzt werden. Gleiches gilt für das Systempasswort des `sysadmin`-Benutzers.
+Alle Passwörter in dieser Dokumentation sind Beispielwerte. In einer produktiven Umgebung müssen sichere Passwörter verwendet werden.
 
-Die IP-Adressen (`192.168.20.x`) und der Domainname (`muellerig.local`) sind fiktiv und können beliebig angepasst werden.
+IP-Adressen, Domainnamen und Hostnamen sind frei wählbar und müssen an die eigene Umgebung angepasst werden. Platzhalter sind in spitzen Klammern angegeben, z.B. `<domain-name>` oder `<statische-IP>`.

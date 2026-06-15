@@ -12,13 +12,13 @@ Auf dem Windows-Client (RSAT muss installiert sein):
 
 `Win + R` → `gpmc.msc` → Enter
 
-Im linken Baum: `Gesamtstruktur: muellerig.local` → `Domänen` → `muellerig.local`
+Im linken Baum: `Gesamtstruktur: <domain-name>.local` → `Domänen` → `<domain-name>.local`
 
 ---
 
 ## 6.2 Neue GPO erstellen
 
-Rechtsklick auf `muellerig.local` → **Gruppenrichtlinienobjekt hier erstellen und verknüpfen**
+Rechtsklick auf `<domain-name>.local` → **Gruppenrichtlinienobjekt hier erstellen und verknüpfen**
 
 Name: `Kennwortrichtlinie`
 
@@ -36,7 +36,7 @@ Im Gruppenrichtlinien-Editor navigieren zu:
 
 Dort folgende Einstellungen setzen:
 
-| Einstellung | Wert |
+| Einstellung | Empfohlener Wert |
 |---|---|
 | Kennwort muss Komplexitätsvoraussetzungen entsprechen | Aktiviert |
 | Minimale Kennwortlänge | 10 Zeichen |
@@ -69,7 +69,7 @@ Prüfen welche GPOs angewendet werden:
 gpresult /r
 ```
 
-Unter "Angewendete Gruppenrichtlinienobjekte" sollte `Kennwortrichtlinie` erscheinen und unter "Gruppenrichtlinienanwendung von" muss `dc01.muellerig.local` stehen.
+Unter "Angewendete Gruppenrichtlinienobjekte" sollte `Kennwortrichtlinie` erscheinen und unter "Gruppenrichtlinienanwendung von" muss `dc01.<domain-name>.local` stehen.
 
 ---
 
@@ -96,4 +96,4 @@ sudo samba-tool domain passwordsettings show
 
 - GPO `Kennwortrichtlinie` ist erstellt und mit der Domain verknüpft
 - Kennwortanforderungen gelten für alle Domainbenutzer
-- GPO wird korrekt von `dc01.muellerig.local` ausgeliefert
+- GPO wird korrekt vom Domain Controller ausgeliefert
